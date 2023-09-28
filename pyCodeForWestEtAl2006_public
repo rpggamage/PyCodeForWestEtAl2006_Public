@@ -1,0 +1,102 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+
+#################################################################################################
+t = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]# N number of data
+#######################################################Hydrogenn##############################
+d2H = [1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 9, 9, 9]# N number of data
+d2H_Stdv = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]# N number of data
+d2H_Tmin = [9, 9, 9, 9, 9, 9]# You select where it is stable
+d2H_Tmin_mean = np.mean(d2H_Tmin)
+print("d2H_Tmin_mean:=================>", d2H_Tmin_mean)
+d2H = [value - d2H_Tmin_mean for value in d2H]
+#############West Method############## Deldta Avg > Tmin calculation H2 #######################
+####################################oxygen######################################################
+d18O = [6, 8, 8, 7, 9, 9, 8, 9, 9, 9, 9, 9, 9, 9]# N number of data
+d18O_Stdv = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]# N number of data
+d18O_Tmin = [9, 9, 8, 9, 9, 9, 9, 9, 9, 9]# You select where it is stable
+d18O_Tmin_mean = np.mean(d18O_Tmin)
+print("d18O_Tmin_mean:=================>", d18O_Tmin_mean)
+d18O = [value - d18O_Tmin_mean for value in d18O]
+# #############West Method############## Deldta Avg > Tmin calculation#######################
+
+# Define the function to fit
+def curve_to_fit(x, a, b, c):
+    return a * x**2 + b * x + c
+
+# Create a figure and axis
+fig, ax1 = plt.subplots()
+
+params, covariance = curve_fit(curve_to_fit, t, d2H)
+
+# Extract the fitted parameters
+a, b, c = params
+
+# Generate fitted values
+fitted_values = curve_to_fit(np.array(t), a, b, c)
+
+ax1.errorbar(t, d2H, yerr=d2H_Stdv, fmt='o', label=r'$\delta^{2}H$ with Error Bars' , color='blue')
+ax1.plot(t, fitted_values, label='Fitted Curve for $\delta^{2}H$', color='blue')
+ax1.set_xlabel('Extraction time (Minuets)')
+ax1.set_ylabel('d2H Value')
+expression1 = r'$\mathbf{\delta^{2}H - \overline{\delta^{2}H  \mathrm{_{\geq{Tmin}}}} \%\mathrm{_o}}$'
+ax1.set_ylabel(expression1, fontsize=16, color='darkblue') #r'$\delta^{2}H \delta^{2}H  }  $'
+ax1.legend(loc='upper left')
+ax1.grid(True, which='major', axis='x', linestyle='-', linewidth=1)
+#################################################### H2 ok then O18##################
+
+# Perform curve fitting for d18O
+params, covariance = curve_fit(curve_to_fit, t, d18O)
+
+# Extract the fitted parameters
+a, b, c = params
+
+# Generate fitted values for d18O
+fitted_values = curve_to_fit(np.array(t), a, b, c)
+
+
+# Create a second y-axis that shares the same x-axis
+ax2 = ax1.twinx()
+
+ax2.errorbar(t, d18O, yerr=d18O_Stdv, fmt='s', label=r'$\delta^{18}O$ with Error Bars', color='red')
+ax2.plot(t, fitted_values, label='Fitted Curve for $\delta^{18}O$', linestyle='dashed',color='red')
+ax1.set_xlabel('Extraction time (Minuets)')
+expression2 = r'$\mathbf{\delta^{18}O - \overline{\delta^{18}O \mathrm{_{\geq{Tmin}}}} \%\mathrm{_o}}$'
+ax2.set_ylabel(expression2, fontsize=16, color='red') 
+ax2.legend(loc='upper right')
+ax1.grid(True, which='major', axis='both', linestyle='-', linewidth=1)
+
+
+# Align the zero points of both y-axes
+ax1_ylim = ax1.get_ylim()
+ax2_ylim = ax2.get_ylim()
+combined_ylim = min(ax1_ylim[0], ax2_ylim[0]), max(ax1_ylim[1], ax2_ylim[1])
+ax1.set_ylim(combined_ylim)
+ax2.set_ylim(combined_ylim)
+
+
+# Set a title for the entire plot
+plt.title('Extraction Timing vs. Normalised Isotope Ratio ')
+# Save the figure with high resolution
+plt.savefig('high_resolution_graph.png', dpi=300, bbox_inches='tight')
+# Display the plot
+plt.show()
+
+d18O_Tmin
+
+d2H_Tmin
+
+d2H_Tmin_mean = np.mean(d2H_Tmin)
+d2H_Tmin_range = np.max(d2H_Tmin)-np.min(d2H_Tmin)
+d2H_Tmin_std = np.std(d2H_Tmin)
+print("Tmin d2H Mean:", d2H_Tmin_mean)
+print("Tmin d2H Range:", d2H_Tmin_range)
+print("Tmin d2H Standard Deviation:", d2H_Tmin_std)
+
+d18O_Tmin_mean = np.mean(d18O_Tmin)
+d18O_Tmin_range = np.max(d18O_Tmin)-np.min(d18O_Tmin)
+d18O_Tmin_std = np.std(d18O_Tmin)
+print("Tmin d18O Mean:", d18O_Tmin_mean)
+print("Tmin d18O Range:", d18O_Tmin_range)
+print("Tmin d18O Standard Deviation:", d18O_Tmin_std)
